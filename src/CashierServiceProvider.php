@@ -17,7 +17,7 @@ class CashierServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(
-            __DIR__.'/../config/cashier.php', 'cashier'
+            __DIR__.'/../config/cashier.php', 'cashier-paddle'
         );
     }
 
@@ -45,7 +45,7 @@ class CashierServiceProvider extends ServiceProvider
     {
         if (Cashier::$registersRoutes) {
             Route::group([
-                'prefix' => config('cashier.path'),
+                'prefix' => config('cashier-paddle.path'),
                 'namespace' => 'Laravel\Paddle\Http\Controllers',
                 'as' => 'cashier.',
             ], function () {
@@ -61,7 +61,7 @@ class CashierServiceProvider extends ServiceProvider
      */
     protected function bootResources()
     {
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'cashier');
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'cashier-paddle');
     }
 
     /**
@@ -85,7 +85,7 @@ class CashierServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../config/cashier.php' => $this->app->configPath('cashier.php'),
+                __DIR__.'/../config/cashier.php' => $this->app->configPath('cashier-paddle.php'),
             ], 'cashier-config');
 
             $this->publishes([
@@ -93,7 +93,7 @@ class CashierServiceProvider extends ServiceProvider
             ], 'cashier-migrations');
 
             $this->publishes([
-                __DIR__.'/../resources/views' => $this->app->resourcePath('views/vendor/cashier'),
+                __DIR__.'/../resources/views' => $this->app->resourcePath('views/vendor/cashier-paddle'),
             ], 'cashier-views');
         }
     }
@@ -106,7 +106,7 @@ class CashierServiceProvider extends ServiceProvider
     protected function bootDirectives()
     {
         Blade::directive('paddleJS', function () {
-            return "<?php echo view('cashier::js'); ?>";
+            return "<?php echo view('cashier-paddle::js'); ?>";
         });
     }
 
@@ -117,7 +117,7 @@ class CashierServiceProvider extends ServiceProvider
      */
     protected function bootComponents()
     {
-        Blade::component('cashier::components.button', 'paddle-button');
+        Blade::component('cashier-paddle::components.button', 'paddle-button');
         Blade::component(Checkout::class, 'paddle-checkout');
     }
 }

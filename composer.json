@@ -1,5 +1,5 @@
 {
-    "name": "laravel/cashier-paddle",
+    "name": "nestedminds/cashier-paddle",
     "description": "Cashier Paddle provides an expressive, fluent interface to Paddle's subscription billing services.",
     "keywords": ["laravel", "paddle", "billing"],
     "license": "MIT",

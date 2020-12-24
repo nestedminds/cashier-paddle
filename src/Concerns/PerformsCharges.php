@@ -27,7 +27,7 @@ trait PerformsCharges
         return $this->generatePayLink(array_merge([
             'title' => $title,
             'webhook_url' => Cashier::webhookUrl(),
-            'prices' => is_array($amount) ? $amount : [config('cashier.currency').':'.$amount],
+            'prices' => is_array($amount) ? $amount : [config('cashier-paddle.currency').':'.$amount],
         ], $options, $this->paddleOptions()));
     }
 

@@ -67,7 +67,7 @@ class Cashier
      */
     public static function webhookUrl()
     {
-        return config('cashier.webhook') ?? route('cashier.webhook');
+        return config('cashier-paddle.webhook') ?? route('cashier.webhook');
     }
 
     /**
@@ -77,7 +77,7 @@ class Cashier
      */
     public static function vendorsUrl()
     {
-        return 'https://'.(config('cashier.sandbox') ? 'sandbox-' : '').'vendors.paddle.com';
+        return 'https://'.(config('cashier-paddle.sandbox') ? 'sandbox-' : '').'vendors.paddle.com';
     }
 
     /**
@@ -87,7 +87,7 @@ class Cashier
      */
     public static function checkoutUrl()
     {
-        return 'https://'.(config('cashier.sandbox') ? 'sandbox-' : '').'checkout.paddle.com';
+        return 'https://'.(config('cashier-paddle.sandbox') ? 'sandbox-' : '').'checkout.paddle.com';
     }
 
     /**
@@ -148,8 +148,8 @@ class Cashier
     public static function paddleOptions(array $options = [])
     {
         return array_merge([
-            'vendor_id' => (int) config('cashier.vendor_id'),
-            'vendor_auth_code' => config('cashier.vendor_auth_code'),
+            'vendor_id' => (int) config('cashier-paddle.vendor_id'),
+            'vendor_auth_code' => config('cashier-paddle.vendor_auth_code'),
         ], $options);
     }
 
@@ -178,9 +178,9 @@ class Cashier
             return call_user_func(static::$formatCurrencyUsing, $amount, $currency);
         }
 
-        $money = new Money($amount, new Currency(strtoupper($currency ?? config('cashier.currency'))));
+        $money = new Money($amount, new Currency(strtoupper($currency ?? config('cashier-paddle.currency'))));
 
-        $locale = $locale ?? config('cashier.currency_locale');
+        $locale = $locale ?? config('cashier-paddle.currency_locale');
 
         $numberFormatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
         $moneyFormatter = new IntlMoneyFormatter($numberFormatter, new ISOCurrencies());

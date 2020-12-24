@@ -50,7 +50,7 @@ class Checkout extends Component
      */
     public function render()
     {
-        return view('cashier::components.checkout');
+        return view('cashier-paddle::components.checkout');
     }
 
     /**
