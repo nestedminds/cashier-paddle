@@ -13,6 +13,9 @@ trait ManagesReceipts
      */
     public function receipts()
     {
-        return $this->morphMany(Receipt::class, 'billable')->orderByDesc('created_at');
+        
+        // to be able to have mongoid as foreign key
+        //return $this->morphMany(Receipt::class, 'billable')->orderByDesc('created_at');
+        return $this->hasMany(Receipt::class);
     }
 }

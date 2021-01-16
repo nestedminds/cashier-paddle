@@ -50,7 +50,6 @@ class WebhookController extends Controller
         }
 
         $method = 'handle'.Str::studly($payload['alert_name']);
-
         WebhookReceived::dispatch($payload);
 
         if (method_exists($this, $method)) {
@@ -82,7 +81,7 @@ class WebhookController extends Controller
 
         $customer = $this->findOrCreateCustomer($payload['passthrough']);
 
-        $receipt = $customer->receipts()->create([
+        $receipt = app(Receipt::class)->create([
             'checkout_id' => $payload['checkout_id'],
             'order_id' => $payload['order_id'],
             'amount' => $payload['sale_gross'],
@@ -91,7 +90,18 @@ class WebhookController extends Controller
             'quantity' => (int) $payload['quantity'],
             'receipt_url' => $payload['receipt_url'],
             'paid_at' => Carbon::createFromFormat('Y-m-d H:i:s', $payload['event_time'], 'UTC'),
+            'user_id' => mongoId($customer->id),
         ]);
+        /*$receipt = $customer->receipts()->create([
+            'checkout_id' => $payload['checkout_id'],
+            'order_id' => $payload['order_id'],
+            'amount' => $payload['sale_gross'],
+            'tax' => $payload['payment_tax'],
+            'currency' => $payload['currency'],
+            'quantity' => (int) $payload['quantity'],
+            'receipt_url' => $payload['receipt_url'],
+            'paid_at' => Carbon::createFromFormat('Y-m-d H:i:s', $payload['event_time'], 'UTC'),
+        ]);*/
 
         PaymentSucceeded::dispatch($customer, $receipt, $payload);
     }
@@ -113,8 +123,7 @@ class WebhookController extends Controller
         } else {
             $billable = $this->findOrCreateCustomer($payload['passthrough']);
         }
-
-        $receipt = $billable->receipts()->create([
+        $receipt = app(Receipt::class)->create([
             'paddle_subscription_id' => $payload['subscription_id'],
             'checkout_id' => $payload['checkout_id'],
             'order_id' => $payload['order_id'],
@@ -124,7 +133,19 @@ class WebhookController extends Controller
             'quantity' => (int) $payload['quantity'],
             'receipt_url' => $payload['receipt_url'],
             'paid_at' => Carbon::createFromFormat('Y-m-d H:i:s', $payload['event_time'], 'UTC'),
+            'user_id' => mongoId($billable->id),
         ]);
+        /*$receipt = $billable->receipts()->create([
+            'paddle_subscription_id' => $payload['subscription_id'],
+            'checkout_id' => $payload['checkout_id'],
+            'order_id' => $payload['order_id'],
+            'amount' => $payload['sale_gross'],
+            'tax' => $payload['payment_tax'],
+            'currency' => $payload['currency'],
+            'quantity' => (int) $payload['quantity'],
+            'receipt_url' => $payload['receipt_url'],
+            'paid_at' => Carbon::createFromFormat('Y-m-d H:i:s', $payload['event_time'], 'UTC'),
+        ]);*/
 
         SubscriptionPaymentSucceeded::dispatch($billable, $receipt, $payload);
     }
@@ -164,14 +185,23 @@ class WebhookController extends Controller
             ? Carbon::createFromFormat('Y-m-d', $payload['next_bill_date'], 'UTC')->startOfDay()
             : null;
 
-        $subscription = $customer->subscriptions()->create([
+        $subscription = app(Subscription::class)->create([
             'name' => $passthrough['subscription_name'],
             'paddle_id' => $payload['subscription_id'],
             'paddle_plan' => $payload['subscription_plan_id'],
             'paddle_status' => $payload['status'],
             'quantity' => $payload['quantity'],
             'trial_ends_at' => $trialEndsAt,
+            'user_id' => mongoId($customer->id),
         ]);
+        /*$subscription = $customer->subscriptions()->create([
+            'name' => $passthrough['subscription_name'],
+            'paddle_id' => $payload['subscription_id'],
+            'paddle_plan' => $payload['subscription_plan_id'],
+            'paddle_status' => $payload['status'],
+            'quantity' => $payload['quantity'],
+            'trial_ends_at' => $trialEndsAt,
+        ]);*/
 
         SubscriptionCreated::dispatch($customer, $subscription, $payload);
     }
@@ -260,9 +290,13 @@ class WebhookController extends Controller
             throw new InvalidPassthroughPayload;
         }
 
+        $userId = is_array($passthrough['billable_id']) && isset($passthrough['billable_id']['$oid'])
+        ? mongoId($passthrough['billable_id']['$oid'])
+        : $passthrough['billable_id'];
+
         return Customer::firstOrCreate([
-            'billable_id' => $passthrough['billable_id'],
-            'billable_type' => $passthrough['billable_type'],
+            'user_id' => $userId,
+            //'billable_type' => $passthrough['billable_type'],
         ])->billable;
     }
 

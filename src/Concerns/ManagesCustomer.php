@@ -15,7 +15,12 @@ trait ManagesCustomer
      */
     public function createAsCustomer(array $attributes = [])
     {
-        return $this->customer()->create($attributes);
+        // to be able to have mongoid as foreign key
+        //return $this->customer()->create($attributes);
+        app(Customer::class)->create(array_merge(
+            $attributes, 
+            ['user_id' => mongoId($this->id)]
+        ));
     }
 
     /**
@@ -25,7 +30,9 @@ trait ManagesCustomer
      */
     public function customer()
     {
-        return $this->morphOne(Customer::class, 'billable');
+        // to be able to have mongoid as foreign key
+        //return $this->morphOne(Customer::class, 'billable');
+        return $this->hasMany(Customer::class);
     }
 
     /**
